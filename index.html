@@ -1,215 +1,388 @@
 <!DOCTYPE html>
-<html lang="my">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ရေတိုင်ကီ ကုန်ကြမ်းတွက်ချက်စက်</title>
+    <title>Fiberglass Calculator - THE CREATOR Digital Service</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+        }
         body {
-            font-family: 'Padauk', sans-serif;
-            background-color: #f3f4f6;
+            font-family: 'Inter', 'Padauk', sans-serif;
+            background-color: #f8fafc;
         }
         .input-field {
             width: 100%;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid #d1d5db;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: #ffffff;
         }
         .input-field:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
+        .card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .nav-link:hover {
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+        }
+        .nav-link.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        .hidden { display: none; }
     </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen flex items-center justify-center">
+<body class="min-h-screen">
 
-    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                </div>
+                <span class="font-bold text-xl text-gray-800 tracking-tight">Fiberglass Calc</span>
+            </div>
+            <div class="flex space-x-2 text-sm font-semibold text-gray-600">
+                <button id="btnCalc" onclick="switchView('calculator')" class="nav-link active">Calculator</button>
+                <button id="btnAbout" onclick="switchView('about')" class="nav-link">About</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto p-4 md:p-8">
         
-        <!-- Header -->
-        <div class="bg-blue-600 p-6 text-white text-center">
-            <h1 class="text-2xl md:text-3xl font-bold mb-2">လေးထောင့်ရေတိုင်ကီ ကုန်ကြမ်းတွက်ချက်စက်</h1>
-            <p class="text-blue-100 text-sm md:text-base">အလျား၊ အနံ၊ အမြင့် ထည့်သွင်းရုံဖြင့် လိုအပ်သော ကုန်ကြမ်းများကို အလိုအလျောက် တွက်ချက်ပေးပါသည်။</p>
-        </div>
-
-        <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            <!-- Input Section -->
-            <div class="space-y-5">
-                <h2 class="text-xl font-bold text-gray-800 border-b pb-2">အချက်အလက်များ ထည့်သွင်းရန်</h2>
+        <!-- Calculator View -->
+        <div id="calculatorView" class="animate-in fade-in duration-500">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">အလျား (Length)</label>
-                        <input type="number" id="length" value="0" min="0" class="input-field" oninput="calculate()">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">အနံ (Width)</label>
-                        <input type="number" id="width" value="0" min="0" class="input-field" oninput="calculate()">
+                <!-- Input Sidebar -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="card p-6 md:p-8">
+                        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                            Product Configuration
+                        </h2>
+
+                        <div class="space-y-5">
+                            <!-- Shape Selector -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Shape Type</label>
+                                <select id="modeSelect" class="input-field font-semibold text-blue-600 bg-blue-50 border-blue-100" onchange="setMode(this.value)">
+                                    <option value="tank">Rectangular Tank</option>
+                                    <option value="cylinder">Cylinder Tank</option>
+                                    <option value="sphere">Sphere Shape</option>
+                                    <option value="statue">Custom / Statue</option>
+                                </select>
+                            </div>
+
+                            <!-- Dynamic Inputs -->
+                            <div id="tankInputs" class="grid grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Length</label>
+                                    <input type="number" id="length" value="0" class="input-field" oninput="calculate()">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Width</label>
+                                    <input type="number" id="width" value="0" class="input-field" oninput="calculate()">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Height</label>
+                                    <input type="number" id="height" value="0" class="input-field" oninput="calculate()">
+                                </div>
+                            </div>
+
+                            <div id="cylinderInputs" class="grid grid-cols-2 gap-4 hidden">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Diameter</label>
+                                    <input type="number" id="cylDia" value="0" class="input-field" oninput="calculate()">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Height</label>
+                                    <input type="number" id="cylHeight" value="0" class="input-field" oninput="calculate()">
+                                </div>
+                            </div>
+
+                            <div id="sphereInputs" class="hidden">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Diameter</label>
+                                <input type="number" id="sphDia" value="0" class="input-field" oninput="calculate()">
+                            </div>
+
+                            <div id="statueInputs" class="hidden">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Estimated Surface Area</label>
+                                <div class="flex gap-2">
+                                    <input type="number" id="customArea" value="0" class="input-field" oninput="calculate()">
+                                    <select id="customAreaUnit" class="input-field w-28" onchange="calculate()">
+                                        <option value="ft2">ft²</option>
+                                        <option value="m2">m²</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Shared Options -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div id="unitContainer">
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Input Unit</label>
+                                    <select id="unit" class="input-field" onchange="calculate()">
+                                        <option value="ft">Feet (ft)</option>
+                                        <option value="in">Inches (in)</option>
+                                        <option value="cm">Centimeters (cm)</option>
+                                        <option value="m">Meters (m)</option>
+                                    </select>
+                                </div>
+                                <div id="lidContainer">
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Lid / Cover</label>
+                                    <select id="hasLid" class="input-field" onchange="calculate()">
+                                        <option value="no">No Lid</option>
+                                        <option value="yes">With Lid</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="pt-6 border-t border-gray-100">
+                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-500 mb-1">Mat Layers</label>
+                                        <input type="number" id="layers" value="0" class="input-field" oninput="calculate()">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-500 mb-1">Mat Type</label>
+                                        <select id="matType" class="input-field" onchange="calculate()">
+                                            <option value="450">450 CSM</option>
+                                            <option value="300">300 CSM</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Waste Factor (%)</label>
+                                    <div class="relative">
+                                        <input type="number" id="waste" value="0" class="input-field pr-10" oninput="calculate()">
+                                        <span class="absolute right-3 top-2.5 text-gray-400 font-bold">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">အမြင့် (Height)</label>
-                        <input type="number" id="height" value="0" min="0" class="input-field" oninput="calculate()">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">အတိုင်းအတာ ယူနစ်</label>
-                        <select id="unit" class="input-field bg-white" onchange="calculate()">
-                            <option value="ft">ပေ (ft)</option>
-                            <option value="in">လက်မ (in)</option>
-                            <option value="cm">စင်တီမီတာ (cm)</option>
-                            <option value="m">မီတာ (m)</option>
-                        </select>
-                    </div>
-                </div>
+                <!-- Result Section -->
+                <div class="lg:col-span-7">
+                    <div class="card p-6 md:p-8 bg-gradient-to-br from-white to-gray-50 h-full flex flex-col">
+                        <h2 class="text-xl font-bold text-gray-900 mb-8 text-center">Estimation Summary</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow">
+                            <!-- Surface Area -->
+                            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                                <p class="text-xs font-bold text-gray-400 uppercase mb-2">Total Surface Area</p>
+                                <div class="flex items-baseline space-x-1">
+                                    <span id="outArea" class="text-3xl font-bold text-gray-800">0.00</span>
+                                    <span id="outAreaUnit" class="text-lg text-gray-400 font-semibold">ft²</span>
+                                </div>
+                            </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">ယိုင်အထပ်ရေ (Layer)</label>
-                    <input type="number" id="layers" value="0" min="0" class="input-field" oninput="calculate()">
-                </div>
+                            <!-- Mat Weight -->
+                            <div class="bg-white p-6 rounded-2xl border-l-4 border-teal-500 shadow-sm">
+                                <p class="text-xs font-bold text-teal-600 uppercase mb-2">E-Glass Mat Required</p>
+                                <div class="flex items-baseline space-x-1">
+                                    <span id="outMat" class="text-3xl font-bold text-gray-800">0.00</span>
+                                    <span class="text-lg text-gray-400 font-semibold">Kg</span>
+                                </div>
+                            </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">အဖုံးပါ/မပါ</label>
-                        <select id="hasLid" class="input-field bg-white" onchange="calculate()">
-                            <option value="no">အဖုံးမပါ (5 ခု)</option>
-                            <option value="yes">အဖုံးပါ (6 ခု)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Mat အမျိုးအစား</label>
-                        <select id="matType" class="input-field bg-white" onchange="calculate()">
-                            <option value="450">450 Mat</option>
-                            <option value="300">300 Mat</option>
-                        </select>
-                    </div>
-                </div>
+                            <!-- Resin Weight -->
+                            <div class="bg-white p-6 rounded-2xl border-l-4 border-amber-500 shadow-sm">
+                                <p class="text-xs font-bold text-amber-600 uppercase mb-2">Resin Required</p>
+                                <div class="flex items-baseline space-x-1">
+                                    <span id="outResin" class="text-3xl font-bold text-gray-800">0.00</span>
+                                    <span class="text-lg text-gray-400 font-semibold">Kg</span>
+                                </div>
+                            </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">အလေအလွင့် (Waste %)</label>
-                    <div class="relative">
-                        <input type="number" id="waste" value="0" min="0" class="input-field pr-8" oninput="calculate()">
-                        <span class="absolute right-3 top-2 text-gray-500">%</span>
+                            <!-- Hardener Volume -->
+                            <div class="bg-white p-6 rounded-2xl border-l-4 border-red-500 shadow-sm">
+                                <p class="text-xs font-bold text-red-600 uppercase mb-2">Hardener Volume</p>
+                                <div class="flex items-baseline space-x-1">
+                                    <span id="outHardener" class="text-3xl font-bold text-gray-800">0.00</span>
+                                    <span class="text-lg text-gray-400 font-semibold">ml</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-gray-200">
+                            <div class="bg-blue-50 p-4 rounded-xl flex items-start space-x-3">
+                                <svg class="w-5 h-5 text-blue-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                                <p id="calculationNote" class="text-xs text-blue-700 leading-relaxed">
+                                    * Standard logic applied: Resin ratio is 2.5x Mat weight. Hardener is 1.5% of Resin weight.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Output Section -->
-            <div class="bg-blue-50 rounded-xl p-6 border border-blue-100 flex flex-col justify-center">
-                <h2 class="text-xl font-bold text-blue-800 border-b border-blue-200 pb-2 mb-6">တွက်ချက်ရရှိသော ရလဒ်များ</h2>
-                
-                <div class="space-y-6">
-                    <!-- Surface Area -->
-                    <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
-                        <span class="text-gray-600 font-medium">မျက်နှာပြင် ဧရိယာ (Total Area)</span>
-                        <div class="text-right">
-                            <span id="outArea" class="text-xl font-bold text-gray-800">0.00</span>
-                            <span id="outAreaUnit" class="text-sm text-gray-500">ft²</span>
-                        </div>
-                    </div>
-
-                    <!-- E-Glass Mat -->
-                    <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border-l-4 border-teal-500">
-                        <span class="text-gray-700 font-bold">E-Glass Mat (ယိုင်)</span>
-                        <div class="text-right">
-                            <span id="outMat" class="text-2xl font-bold text-teal-600">0.00</span>
-                            <span class="text-sm text-gray-500">Kg</span>
-                        </div>
-                    </div>
-
-                    <!-- Resin -->
-                    <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border-l-4 border-amber-500">
-                        <span class="text-gray-700 font-bold">Resin (ကော်ရည်)</span>
-                        <div class="text-right">
-                            <span id="outResin" class="text-2xl font-bold text-amber-600">0.00</span>
-                            <span class="text-sm text-gray-500">Kg</span>
-                        </div>
-                    </div>
-
-                    <!-- Hardener -->
-                    <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border-l-4 border-red-500">
-                        <span class="text-gray-700 font-bold">Hardener (ခြောက်ဆေး)</span>
-                        <div class="text-right">
-                            <span id="outHardener" class="text-2xl font-bold text-red-600">0.00</span>
-                            <span class="text-sm text-gray-500">ml</span>
-                        </div>
-                    </div>
+        <!-- About View -->
+        <div id="aboutView" class="hidden animate-in slide-in-from-bottom-4 duration-500">
+            <div class="max-w-3xl mx-auto py-12">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-4 tracking-tight">THE CREATOR Digital Service</h1>
+                    <div class="h-1 w-20 bg-blue-600 mx-auto rounded-full"></div>
                 </div>
                 
-                <div class="mt-6 text-xs text-gray-500 text-center" id="calculationNote">
-                    * တွက်ချက်မှုများသည် 450 CSM ယိုင်အသုံးပြုမှုကို အခြေခံထားပါသည်။
+                <div class="card p-8 md:p-12 space-y-8">
+                    <section>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">About This App</h3>
+                        <p class="text-gray-600 leading-relaxed">
+                            Fiberglass Calculator is a specialized tool designed for professionals and manufacturers in the fiberglass industry. 
+                            It provides high-precision raw material estimations for various shapes, ensuring efficient production planning and cost control.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Developed By</h3>
+                        <div class="flex items-center space-x-4">
+                            <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center">
+                                <span class="text-2xl font-black text-blue-600">TC</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-lg text-gray-900">THE CREATOR Digital Service</p>
+                                <p class="text-gray-500 italic">"Empowering Industry with Digital Solutions"</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="bg-gray-50 p-6 rounded-2xl">
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Technical Standards</h3>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li class="flex items-center"><svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 450 CSM: 0.45 Kg/m²</li>
+                            <li class="flex items-center"><svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 300 CSM: 0.30 Kg/m²</li>
+                            <li class="flex items-center"><svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Resin Ratio: 2.5 : 1 (Mat weight)</li>
+                            <li class="flex items-center"><svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Hardener Ratio: 1.5% of Resin</li>
+                        </ul>
+                    </section>
+                </div>
+
+                <div class="text-center mt-12 text-gray-400 text-sm">
+                    © 2024 THE CREATOR Digital Service. All rights reserved.
                 </div>
             </div>
-
         </div>
-    </div>
+
+    </main>
 
     <script>
-        function calculate() {
-            // Get inputs
-            const length = parseFloat(document.getElementById('length').value) || 0;
-            const width = parseFloat(document.getElementById('width').value) || 0;
-            const height = parseFloat(document.getElementById('height').value) || 0;
-            const unit = document.getElementById('unit').value;
-            const layers = parseFloat(document.getElementById('layers').value) || 0;
-            const hasLid = document.getElementById('hasLid').value === 'yes';
-            const matType = document.getElementById('matType').value;
-            const waste = parseFloat(document.getElementById('waste').value) || 0;
+        let currentMode = 'tank';
 
-            // Display Area in Selected Unit
-            let displayArea = 0;
-            if (hasLid) {
-                displayArea = 2 * (length * width) + 2 * (length * height) + 2 * (width * height);
+        function switchView(view) {
+            const calcView = document.getElementById('calculatorView');
+            const aboutView = document.getElementById('aboutView');
+            const btnCalc = document.getElementById('btnCalc');
+            const btnAbout = document.getElementById('btnAbout');
+
+            if (view === 'calculator') {
+                calcView.classList.remove('hidden');
+                aboutView.classList.add('hidden');
+                btnCalc.classList.add('active');
+                btnAbout.classList.remove('active');
             } else {
-                displayArea = (length * width) + 2 * (length * height) + 2 * (width * height);
+                calcView.classList.add('hidden');
+                aboutView.classList.remove('hidden');
+                btnAbout.classList.add('active');
+                btnCalc.classList.remove('active');
             }
-            
-            // Set Display Area Unit Label
-            document.getElementById('outAreaUnit').innerText = unit + '²';
-
-            // Internal calculation in meters (for raw material formulas)
-            let multiplier = 1;
-            if (unit === 'ft') multiplier = 0.3048;
-            if (unit === 'in') multiplier = 0.0254;
-            if (unit === 'cm') multiplier = 0.01;
-
-            const l_m = length * multiplier;
-            const w_m = width * multiplier;
-            const h_m = height * multiplier;
-
-            let area_m2 = 0;
-            if (hasLid) {
-                area_m2 = 2 * (l_m * w_m) + 2 * (l_m * h_m) + 2 * (w_m * h_m);
-            } else {
-                area_m2 = (l_m * w_m) + 2 * (l_m * h_m) + 2 * (w_m * h_m);
-            }
-
-            // Determine Mat Factor
-            let matFactor = 0.45; 
-            if (matType === '300') matFactor = 0.30;
-            
-            // Update Note
-            document.getElementById('calculationNote').innerText = `* တွက်ချက်မှုများသည် ${matType} CSM ယိုင်အသုံးပြုမှုကို အခြေခံထားပါသည်။ (Mat 1m² = ${matFactor}Kg, Resin = 2.5x Mat, Hardener = 1.5% of Resin)`;
-
-            // Material Formulas (Always based on m2)
-            const matWeight = area_m2 * layers * matFactor * (1 + (waste / 100));
-            const resinWeight = matWeight * 2.5;
-            const hardenerCc = resinWeight * 15; 
-
-            // Update UI
-            document.getElementById('outArea').innerText = displayArea.toFixed(2);
-            document.getElementById('outMat').innerText = matWeight.toFixed(2);
-            document.getElementById('outResin').innerText = resinWeight.toFixed(2);
-            document.getElementById('outHardener').innerText = hardenerCc.toFixed(2);
         }
 
-        // Initialize calculation on load
-        window.onload = calculate;
+        function setMode(mode) {
+            currentMode = mode;
+            const ids = ['tankInputs', 'cylinderInputs', 'sphereInputs', 'statueInputs'];
+            ids.forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById(mode + 'Inputs').classList.remove('hidden');
+
+            document.getElementById('lidContainer').style.display = (mode === 'tank' || mode === 'cylinder') ? 'block' : 'none';
+            document.getElementById('unitContainer').style.display = (mode === 'statue') ? 'none' : 'block';
+            calculate();
+        }
+
+        function calculate() {
+            let area_m2 = 0;
+            let displayArea = 0;
+            let displayUnit = '';
+
+            const layers = parseFloat(document.getElementById('layers').value) || 0;
+            const matType = document.getElementById('matType').value;
+            const waste = parseFloat(document.getElementById('waste').value) || 0;
+            const hasLid = document.getElementById('hasLid').value === 'yes';
+            const matFactor = (matType === '450') ? 0.45 : 0.30;
+            const unit = document.getElementById('unit').value;
+            const m = (unit === 'ft') ? 0.3048 : (unit === 'in') ? 0.0254 : (unit === 'cm') ? 0.01 : 1;
+
+            if (currentMode === 'tank') {
+                const l = parseFloat(document.getElementById('length').value) || 0;
+                const w = parseFloat(document.getElementById('width').value) || 0;
+                const h = parseFloat(document.getElementById('height').value) || 0;
+                displayArea = hasLid ? (2*(l*w) + 2*(l*h) + 2*(w*h)) : ((l*w) + 2*(l*h) + 2*(w*h));
+                displayUnit = unit + '²';
+                const lm=l*m, wm=w*m, hm=h*m;
+                area_m2 = hasLid ? (2*(lm*wm) + 2*(lm*hm) + 2*(wm*hm)) : ((lm*wm) + 2*(lm*hm) + 2*(wm*hm));
+
+            } else if (currentMode === 'cylinder') {
+                const d = parseFloat(document.getElementById('cylDia').value) || 0;
+                const h = parseFloat(document.getElementById('cylHeight').value) || 0;
+                const r = d / 2;
+                displayArea = hasLid ? (2 * Math.PI * r * h + 2 * Math.PI * Math.pow(r, 2)) : (2 * Math.PI * r * h + Math.PI * Math.pow(r, 2));
+                displayUnit = unit + '²';
+                const rm = r*m, hm = h*m;
+                area_m2 = hasLid ? (2 * Math.PI * rm * hm + 2 * Math.PI * Math.pow(rm, 2)) : (2 * Math.PI * rm * hm + Math.PI * Math.pow(rm, 2));
+
+            } else if (currentMode === 'sphere') {
+                const d = parseFloat(document.getElementById('sphDia').value) || 0;
+                displayArea = 4 * Math.PI * Math.pow((d/2), 2);
+                displayUnit = unit + '²';
+                const rm = (d/2) * m;
+                area_m2 = 4 * Math.PI * Math.pow(rm, 2);
+
+            } else if (currentMode === 'statue') {
+                const customAreaValue = parseFloat(document.getElementById('customArea').value) || 0;
+                const customAreaUnit = document.getElementById('customAreaUnit').value;
+                displayArea = customAreaValue;
+                displayUnit = customAreaUnit;
+                area_m2 = (customAreaUnit === 'ft2') ? (customAreaValue * 0.092903) : customAreaValue;
+            }
+
+            const matWeight = area_m2 * layers * matFactor * (1 + (waste / 100));
+            const resinWeight = matWeight * 2.5;
+            const hardenerMl = resinWeight * 15;
+
+            document.getElementById('outArea').innerText = displayArea.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('outAreaUnit').innerText = displayUnit;
+            document.getElementById('outMat').innerText = matWeight.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('outResin').innerText = resinWeight.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('outHardener').innerText = hardenerMl.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('calculationNote').innerText = `* Estimation Logic: ${matType} CSM standard applied. Material needs are calculated with 2.5x resin ratio and 1.5% hardener volume.`;
+        }
+
+        window.onload = () => setMode('tank');
     </script>
 </body>
 </html>
