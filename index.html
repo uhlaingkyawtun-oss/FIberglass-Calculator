@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ရေတိုင်ကီ ကုန်ကြမ်းတွက်ချက်စက်</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Padauk', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex items-center justify-center">
+
+    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-blue-600 p-6 text-white text-center">
+            <h1 class="text-2xl md:text-3xl font-bold mb-2">လေးထောင့်ရေတိုင်ကီ ကုန်ကြမ်းတွက်ချက်စက်</h1>
+            <p class="text-blue-100 text-sm md:text-base">အလျား၊ အနံ၊ အမြင့် ထည့်သွင်းရုံဖြင့် လိုအပ်သော ကုန်ကြမ်းများကို အလိုအလျောက် တွက်ချက်ပေးပါသည်။</p>
+        </div>
+
+        <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- Input Section -->
+            <div class="space-y-5">
+                <h2 class="text-xl font-bold text-gray-800 border-b pb-2">အချက်အလက်များ ထည့်သွင်းရန်</h2>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">အလျား (Length)</label>
+                        <input type="number" id="length" value="0" min="0" class="input-field" oninput="calculate()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">အနံ (Width)</label>
+                        <input type="number" id="width" value="0" min="0" class="input-field" oninput="calculate()">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">အမြင့် (Height)</label>
+                        <input type="number" id="height" value="0" min="0" class="input-field" oninput="calculate()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">အတိုင်းအတာ ယူနစ်</label>
+                        <select id="unit" class="input-field bg-white" onchange="calculate()">
+                            <option value="ft">ပေ (ft)</option>
+                            <option value="in">လက်မ (in)</option>
+                            <option value="cm">စင်တီမီတာ (cm)</option>
+                            <option value="m">မီတာ (m)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ယိုင်အထပ်ရေ (Layer)</label>
+                    <input type="number" id="layers" value="0" min="0" class="input-field" oninput="calculate()">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">အဖုံးပါ/မပါ</label>
+                        <select id="hasLid" class="input-field bg-white" onchange="calculate()">
+                            <option value="no">အဖုံးမပါ (5 ခု)</option>
+                            <option value="yes">အဖုံးပါ (6 ခု)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mat အမျိုးအစား</label>
+                        <select id="matType" class="input-field bg-white" onchange="calculate()">
+                            <option value="450">450 Mat</option>
+                            <option value="300">300 Mat</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">အလေအလွင့် (Waste %)</label>
+                    <div class="relative">
+                        <input type="number" id="waste" value="0" min="0" class="input-field pr-8" oninput="calculate()">
+                        <span class="absolute right-3 top-2 text-gray-500">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="bg-blue-50 rounded-xl p-6 border border-blue-100 flex flex-col justify-center">
+                <h2 class="text-xl font-bold text-blue-800 border-b border-blue-200 pb-2 mb-6">တွက်ချက်ရရှိသော ရလဒ်များ</h2>
+                
+                <div class="space-y-6">
+                    <!-- Surface Area -->
+                    <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+                        <span class="text-gray-600 font-medium">မျက်နှာပြင် ဧရိယာ (Total Area)</span>
+                        <div class="text-right">
+                            <span id="outArea" class="text-xl font-bold text-gray-800">0.00</span>
+                            <span class="text-sm text-gray-500">m²</span>
+                        </div>
+                    </div>
+
+                    <!-- E-Glass Mat -->
+                    <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border-l-4 border-teal-500">
+                        <span class="text-gray-700 font-bold">E-Glass Mat (ယိုင်)</span>
+                        <div class="text-right">
+                            <span id="outMat" class="text-2xl font-bold text-teal-600">0.00</span>
+                            <span class="text-sm text-gray-500">Kg</span>
+                        </div>
+                    </div>
+
+                    <!-- Resin -->
+                    <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border-l-4 border-amber-500">
+                        <span class="text-gray-700 font-bold">Resin (ကော်ရည်)</span>
+                        <div class="text-right">
+                            <span id="outResin" class="text-2xl font-bold text-amber-600">0.00</span>
+                            <span class="text-sm text-gray-500">Kg</span>
+                        </div>
+                    </div>
+
+                    <!-- Hardener -->
+                    <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border-l-4 border-red-500">
+                        <span class="text-gray-700 font-bold">Hardener (ခြောက်ဆေး)</span>
+                        <div class="text-right">
+                            <span id="outHardener" class="text-2xl font-bold text-red-600">0.00</span>
+                            <span class="text-sm text-gray-500">ml</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-xs text-gray-500 text-center" id="calculationNote">
+                    * တွက်ချက်မှုများသည် 450 CSM ယိုင်အသုံးပြုမှုကို အခြေခံထားပါသည်။
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            // Get inputs
+            const length = parseFloat(document.getElementById('length').value) || 0;
+            const width = parseFloat(document.getElementById('width').value) || 0;
+            const height = parseFloat(document.getElementById('height').value) || 0;
+            const unit = document.getElementById('unit').value;
+            const layers = parseFloat(document.getElementById('layers').value) || 0;
+            const hasLid = document.getElementById('hasLid').value === 'yes';
+            const matType = document.getElementById('matType').value;
+            const waste = parseFloat(document.getElementById('waste').value) || 0;
+
+            // Convert to meters
+            let multiplier = 1;
+            if (unit === 'ft') multiplier = 0.3048;
+            if (unit === 'in') multiplier = 0.0254;
+            if (unit === 'cm') multiplier = 0.01;
+
+            const l_m = length * multiplier;
+            const w_m = width * multiplier;
+            const h_m = height * multiplier;
+
+            // Calculate Area (m²)
+            let area = 0;
+            if (hasLid) {
+                // 6 surfaces
+                area = 2 * (l_m * w_m) + 2 * (l_m * h_m) + 2 * (w_m * h_m);
+            } else {
+                // 5 surfaces
+                area = (l_m * w_m) + 2 * (l_m * h_m) + 2 * (w_m * h_m);
+            }
+
+            // Determine Mat Factor
+            let matFactor = 0.45; // Default for 450 Mat
+            if (matType === '300') matFactor = 0.30;
+            
+            // Update Note
+            document.getElementById('calculationNote').innerText = `* တွက်ချက်မှုများသည် ${matType} CSM ယိုင်အသုံးပြုမှုကို အခြေခံထားပါသည်။ (Mat 1m² = ${matFactor}Kg, Resin = 2.5x Mat, Hardener = 1.5% of Resin)`;
+
+            // Formulas
+            const matWeight = area * layers * matFactor * (1 + (waste / 100));
+            const resinWeight = matWeight * 2.5;
+            const hardenerCc = resinWeight * 15; // 1.5% logic
+
+            // Update UI
+            document.getElementById('outArea').innerText = area.toFixed(2);
+            document.getElementById('outMat').innerText = matWeight.toFixed(2);
+            document.getElementById('outResin').innerText = resinWeight.toFixed(2);
+            document.getElementById('outHardener').innerText = hardenerCc.toFixed(2);
+        }
+
+        // Initialize calculation on load
+        window.onload = calculate;
+    </script>
+</body>
+</html>
