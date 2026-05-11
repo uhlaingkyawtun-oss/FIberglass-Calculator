@@ -109,7 +109,7 @@
                         <span class="text-gray-600 font-medium">မျက်နှာပြင် ဧရိယာ (Total Area)</span>
                         <div class="text-right">
                             <span id="outArea" class="text-xl font-bold text-gray-800">0.00</span>
-                            <span class="text-sm text-gray-500">m²</span>
+                            <span id="outAreaUnit" class="text-sm text-gray-500">ft²</span>
                         </div>
                     </div>
 
@@ -161,7 +161,18 @@
             const matType = document.getElementById('matType').value;
             const waste = parseFloat(document.getElementById('waste').value) || 0;
 
-            // Convert to meters
+            // Display Area in Selected Unit
+            let displayArea = 0;
+            if (hasLid) {
+                displayArea = 2 * (length * width) + 2 * (length * height) + 2 * (width * height);
+            } else {
+                displayArea = (length * width) + 2 * (length * height) + 2 * (width * height);
+            }
+            
+            // Set Display Area Unit Label
+            document.getElementById('outAreaUnit').innerText = unit + '²';
+
+            // Internal calculation in meters (for raw material formulas)
             let multiplier = 1;
             if (unit === 'ft') multiplier = 0.3048;
             if (unit === 'in') multiplier = 0.0254;
@@ -171,30 +182,27 @@
             const w_m = width * multiplier;
             const h_m = height * multiplier;
 
-            // Calculate Area (m²)
-            let area = 0;
+            let area_m2 = 0;
             if (hasLid) {
-                // 6 surfaces
-                area = 2 * (l_m * w_m) + 2 * (l_m * h_m) + 2 * (w_m * h_m);
+                area_m2 = 2 * (l_m * w_m) + 2 * (l_m * h_m) + 2 * (w_m * h_m);
             } else {
-                // 5 surfaces
-                area = (l_m * w_m) + 2 * (l_m * h_m) + 2 * (w_m * h_m);
+                area_m2 = (l_m * w_m) + 2 * (l_m * h_m) + 2 * (w_m * h_m);
             }
 
             // Determine Mat Factor
-            let matFactor = 0.45; // Default for 450 Mat
+            let matFactor = 0.45; 
             if (matType === '300') matFactor = 0.30;
             
             // Update Note
             document.getElementById('calculationNote').innerText = `* တွက်ချက်မှုများသည် ${matType} CSM ယိုင်အသုံးပြုမှုကို အခြေခံထားပါသည်။ (Mat 1m² = ${matFactor}Kg, Resin = 2.5x Mat, Hardener = 1.5% of Resin)`;
 
-            // Formulas
-            const matWeight = area * layers * matFactor * (1 + (waste / 100));
+            // Material Formulas (Always based on m2)
+            const matWeight = area_m2 * layers * matFactor * (1 + (waste / 100));
             const resinWeight = matWeight * 2.5;
-            const hardenerCc = resinWeight * 15; // 1.5% logic
+            const hardenerCc = resinWeight * 15; 
 
             // Update UI
-            document.getElementById('outArea').innerText = area.toFixed(2);
+            document.getElementById('outArea').innerText = displayArea.toFixed(2);
             document.getElementById('outMat').innerText = matWeight.toFixed(2);
             document.getElementById('outResin').innerText = resinWeight.toFixed(2);
             document.getElementById('outHardener').innerText = hardenerCc.toFixed(2);
