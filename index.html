@@ -1,124 +1,105 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="my">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fiberglass Pro - THE CREATOR Digital Service</title>
+    <title>Fiberglass Calculator Pro - THE CREATOR Digital Service</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- html2pdf.js Library for PDF Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: { colors: { primary: '#2563eb', darkbg: '#0f172a', darkcard: '#1e293b' } }
-            }
-        }
-    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', 'Padauk', sans-serif; user-select: none; transition: background-color 0.3s, color 0.3s; }
-        
-        .input-field {
-            width: 100%; padding: 0.6rem 1rem; border-radius: 0.5rem;
-            border: 1px solid #e2e8f0; outline: none; transition: all 0.2s;
-            background-color: #ffffff; color: #1f2937;
+        :root { --primary: #2563eb; }
+        body {
+            font-family: 'Inter', 'Padauk', sans-serif;
+            background-color: #f8fafc;
+            user-select: none;
         }
-        .dark .input-field { background-color: #334155; border-color: #475569; color: #f8fafc; }
-        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
-
-        .card { background: white; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
-        .dark .card { background: var(--darkcard); border-color: #334155; }
-
-        .nav-link { padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 0.875rem; color: #4b5563; }
-        .dark .nav-link { color: #cbd5e1; }
-        .nav-link:hover { background-color: #eff6ff; color: #2563eb; }
-        .nav-link.active { background-color: #2563eb; color: white; }
-
-        /* PDF Export Styles */
-        .pdf-export-mode { padding: 20px; background: white; color: black; }
-        .pdf-export-mode #inputSection, .pdf-export-mode .no-pdf { display: none !important; }
-        .pdf-export-mode #outputSection { width: 100%; max-width: 100%; margin: 0 auto; display: block; }
-        .pdf-export-mode .card { border: none !important; box-shadow: none !important; padding: 0 !important; }
-        .pdf-export-mode table tr { page-break-inside: avoid; } /* Prevents rows from splitting */
-        .pdf-header { display: none; }
-        .pdf-export-mode .pdf-header { display: block; text-align: center; margin-bottom: 30px; border-bottom: 2px solid #1f2937; padding-bottom: 15px; }
-
+        .input-field {
+            width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem;
+            border: 1px solid #e2e8f0; outline: none; transition: all 0.2s;
+            background-color: #ffffff;
+        }
+        .input-field:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .card { background: white; border-radius: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; font-weight: 600; color: #64748b; transition: 0.2s; }
+        .nav-link:hover { background-color: #eff6ff; color: var(--primary); }
+        .nav-link.active { background-color: var(--primary); color: white; }
+        .hidden { display: none !important; }
+        
+        .toggle-checkbox:checked { right: 0; border-color: #68D391; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #68D391; }
+        .toggle-checkbox { right: 0; z-index: 1; border-color: #e2e8f0; transition: all 0.3s; }
+        .toggle-label { width: 3rem; height: 1.5rem; background-color: #e2e8f0; border-radius: 9999px; transition: all 0.3s; }
+        
+        /* PDF Export Mode Styling */
+        .pdf-mode { padding: 20px; background: white; }
+        .pdf-mode .hide-on-pdf { display: none !important; }
+        .pdf-mode .show-on-pdf { display: block !important; }
+        .pdf-mode .card { border: none; box-shadow: none; padding: 0; }
+        
+        /* Browser Print Mode Styling */
+        @media print {
+            body { background-color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            nav, .hide-on-pdf { display: none !important; }
+            .show-on-pdf { display: block !important; }
+            .card { border: none; box-shadow: none; margin: 0; padding: 0; }
+            #mainAppContent { padding: 0; }
+            #pdfContentWrapper { width: 100% !important; grid-column: span 12 !important; }
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+        }
+        
+        .show-on-pdf { display: none; } /* Hidden by default */
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen bg-gray-50 text-gray-800 dark:bg-slate-900 dark:text-gray-200">
+<body class="min-h-screen text-gray-800">
 
-    <!-- Top Navigation -->
-    <nav class="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 sticky top-0 z-50 shadow-sm no-pdf">
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-40 hide-on-pdf">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-md">
                     <span class="text-white font-bold text-xs">TC</span>
                 </div>
-                <span class="font-bold text-lg hidden sm:block tracking-tight text-gray-900 dark:text-white">Costing Pro</span>
+                <span class="font-bold text-lg hidden sm:block tracking-tight text-gray-900">Fiberglass Pro</span>
             </div>
             
-            <div class="flex space-x-1">
-                <button onclick="switchMainView('calculator')" id="mainBtnCalc" class="nav-link active" data-i18n="nav_calc">Calculator</button>
-                <button onclick="switchMainView('saved')" id="mainBtnSaved" class="nav-link" data-i18n="nav_saved">Saved</button>
-                <button onclick="switchMainView('prices')" id="mainBtnPrices" class="nav-link" data-i18n="nav_prices">Prices</button>
-                <button onclick="switchMainView('rates')" id="mainBtnRates" class="nav-link" data-i18n="nav_rates">Rates</button>
+            <div class="flex space-x-1 text-sm">
+                <button onclick="switchView('calculator')" id="btnCalc" class="nav-link active">Calculator</button>
+                <button onclick="switchView('prices')" id="btnPrices" class="nav-link">⚙️ Prices</button>
             </div>
 
-            <div class="flex items-center space-x-3">
-                <div class="flex items-center space-x-1 bg-gray-100 dark:bg-slate-700 p-0.5 rounded border">
-                    <button onclick="setLanguage('en')" id="langEn" class="lang-btn active px-2 py-1 rounded text-xs font-bold">EN</button>
-                    <button onclick="setLanguage('my')" id="langMy" class="lang-btn px-2 py-1 rounded text-xs font-bold">MM</button>
-                </div>
-                <button onclick="switchMainView('settings')" id="mainBtnSettings" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition" title="Settings">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                </button>
+            <div class="flex items-center space-x-2 bg-gray-100 p-1 rounded-lg text-sm border border-gray-200">
+                <button onclick="setLanguage('en')" id="langEn" class="px-2 py-1 rounded font-bold text-gray-400">EN</button>
+                <button onclick="setLanguage('my')" id="langMy" class="px-2 py-1 rounded font-bold text-blue-600 bg-white shadow-sm">MM</button>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto p-4 md:p-6">
+    <main class="max-w-7xl mx-auto p-4 md:p-6" id="mainAppContent">
         
-        <!-- ================= 1. CALCULATOR VIEW ================= -->
-        <div id="calculatorView" class="animate-in fade-in duration-300 block">
-            
-            <!-- PDF Document Header (Hidden on normal screen, shown in PDF) -->
-            <div class="pdf-header">
-                <h1 id="pdfBizName" class="text-3xl font-black text-gray-900 tracking-tight uppercase">Your Business Name</h1>
-                <h2 class="text-xl font-bold uppercase mt-2 text-gray-600">Official Quotation</h2>
-                <div class="mt-8 text-left flex justify-between items-end">
-                    <div class="text-lg">
-                        <span class="font-bold">Project / Client:</span> 
-                        <span id="pdfProjectName" class="font-semibold text-gray-800 ml-2"></span>
-                    </div>
-                    <div class="text-sm font-bold">
-                        Date: <span id="pdfDate" class="font-normal ml-1"></span>
-                    </div>
-                </div>
-            </div>
+        <!-- Error Warning Box -->
+        <div id="errorWarning" class="hidden mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-sm font-bold text-sm flex items-center transition-all hide-on-pdf">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+            <span id="warningText">⚠️ သတိပြုရန် - အနှုတ်လက္ခဏာ (Negative Numbers) ထည့်သွင်း၍မရပါ။ အလိုအလျောက် ပြင်ဆင်ပေးထားပါသည်။</span>
+        </div>
 
+        <!-- ================= CALCULATOR VIEW ================= -->
+        <div id="calculatorView" class="animate-in fade-in duration-300">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Inputs Side -->
-                <div class="lg:col-span-4 space-y-4" id="inputSection">
-                    
-                    <!-- Error Warning Box -->
-                    <div id="errorWarning" class="hidden bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500 text-red-700 dark:text-red-400 p-3 text-xs font-bold shadow-sm rounded"></div>
-
-                    <div class="card p-5">
-                        <div class="flex justify-between items-center mb-4 border-b dark:border-slate-700 pb-2">
-                            <h2 class="text-sm font-bold uppercase tracking-wider" data-i18n="config_title">Product Specs</h2>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-[10px] font-bold text-gray-500 uppercase" data-i18n="adv_mat">Pro Mode</span>
-                                <div class="relative inline-block w-8 align-middle select-none">
-                                    <input type="checkbox" id="advancedToggle" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer" onchange="calculate()"/>
-                                    <label for="advancedToggle" class="toggle-label block overflow-hidden h-4 rounded-full bg-gray-300 cursor-pointer" style="width: 2rem;"></label>
-                                </div>
-                            </div>
-                        </div>
+                
+                <!-- Configuration Sidebar (Hidden on Print/PDF) -->
+                <div class="lg:col-span-4 space-y-6 hide-on-pdf">
+                    <div class="card p-6">
+                        <h2 class="text-lg font-bold text-gray-900 mb-4 border-b pb-2" data-i18n="config_title">Product Specs</h2>
                         
-                        <div class="space-y-3">
+                        <div class="space-y-4">
                             <div>
-                                <select id="modeSelect" class="input-field bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-400 font-bold border-blue-200 dark:border-slate-600 cursor-pointer text-sm" onchange="setMode(this.value)">
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1" data-i18n="shape_type">Shape Type</label>
+                                <select id="modeSelect" class="input-field bg-blue-50 text-blue-700 font-bold cursor-pointer" onchange="setMode(this.value)">
                                     <option value="tank" data-i18n="shape_tank">Rectangular Tank</option>
                                     <option value="cylinder" data-i18n="shape_cyl">Cylinder Tank</option>
                                     <option value="sphere" data-i18n="shape_sph">Sphere Shape</option>
@@ -127,22 +108,25 @@
                             </div>
 
                             <div id="tankInputs" class="grid grid-cols-3 gap-2">
-                                <div><label class="block text-[10px] text-gray-500 mb-0.5" data-i18n="length">Length</label><input type="number" min="0" id="length" value="0" class="input-field py-1.5 px-2" oninput="validateInput(this)"></div>
-                                <div><label class="block text-[10px] text-gray-500 mb-0.5" data-i18n="width">Width</label><input type="number" min="0" id="width" value="0" class="input-field py-1.5 px-2" oninput="validateInput(this)"></div>
-                                <div><label class="block text-[10px] text-gray-500 mb-0.5" data-i18n="height">Height</label><input type="number" min="0" id="height" value="0" class="input-field py-1.5 px-2" oninput="validateInput(this)"></div>
+                                <div><label class="block text-xs text-gray-500 mb-1" data-i18n="length">Length</label><input type="number" id="length" value="0" class="input-field py-2 px-3" oninput="validateInput(this)"></div>
+                                <div><label class="block text-xs text-gray-500 mb-1" data-i18n="width">Width</label><input type="number" id="width" value="0" class="input-field py-2 px-3" oninput="validateInput(this)"></div>
+                                <div><label class="block text-xs text-gray-500 mb-1" data-i18n="height">Height</label><input type="number" id="height" value="0" class="input-field py-2 px-3" oninput="validateInput(this)"></div>
                             </div>
+
                             <div id="cylinderInputs" class="grid grid-cols-2 gap-2 hidden">
-                                <div><label class="block text-[10px] text-gray-500 mb-0.5" data-i18n="diameter">Diameter</label><input type="number" min="0" id="cylDia" value="0" class="input-field py-1.5 px-2" oninput="validateInput(this)"></div>
-                                <div><label class="block text-[10px] text-gray-500 mb-0.5" data-i18n="height">Height</label><input type="number" min="0" id="cylHeight" value="0" class="input-field py-1.5 px-2" oninput="validateInput(this)"></div>
+                                <div><label class="block text-xs text-gray-500 mb-1" data-i18n="diameter">Diameter</label><input type="number" id="cylDia" value="0" class="input-field py-2 px-3" oninput="validateInput(this)"></div>
+                                <div><label class="block text-xs text-gray-500 mb-1" data-i18n="height">Height</label><input type="number" id="cylHeight" value="0" class="input-field py-2 px-3" oninput="validateInput(this)"></div>
                             </div>
+
                             <div id="sphereInputs" class="hidden">
-                                <label class="block text-[10px] text-gray-500 mb-0.5" data-i18n="diameter">Diameter</label><input type="number" min="0" id="sphDia" value="0" class="input-field py-1.5 px-2" oninput="validateInput(this)">
+                                <label class="block text-xs text-gray-500 mb-1" data-i18n="diameter">Diameter</label><input type="number" id="sphDia" value="0" class="input-field py-2 px-3" oninput="validateInput(this)">
                             </div>
+
                             <div id="statueInputs" class="hidden">
-                                <label class="block text-[10px] text-gray-500 mb-0.5" data-i18n="surface_area">Area</label>
+                                <label class="block text-xs text-gray-500 mb-1" data-i18n="surface_area">Area</label>
                                 <div class="flex gap-2">
-                                    <input type="number" min="0" id="customArea" value="0" class="input-field py-1.5 px-2" oninput="validateInput(this)">
-                                    <select id="customAreaUnit" class="input-field py-1.5 px-2 w-20 cursor-pointer" onchange="calculate()">
+                                    <input type="number" id="customArea" value="0" class="input-field py-2 px-3" oninput="validateInput(this)">
+                                    <select id="customAreaUnit" class="input-field w-24 bg-gray-50 cursor-pointer" onchange="calculate()">
                                         <option value="ft2">ft²</option><option value="m2">m²</option>
                                     </select>
                                 </div>
@@ -150,189 +134,291 @@
 
                             <div class="grid grid-cols-2 gap-2">
                                 <div id="unitContainer">
-                                    <select id="unit" class="input-field cursor-pointer py-1.5 px-2 text-xs" onchange="calculate()">
+                                    <select id="unit" class="input-field cursor-pointer py-2 px-3" onchange="calculate()">
                                         <option value="ft" data-i18n="ft">Feet</option><option value="in" data-i18n="in">Inches</option>
                                         <option value="cm" data-i18n="cm">cm</option><option value="m" data-i18n="m">Meter</option>
                                     </select>
                                 </div>
                                 <div id="lidContainer">
-                                    <select id="hasLid" class="input-field cursor-pointer py-1.5 px-2 text-xs" onchange="calculate()">
+                                    <select id="hasLid" class="input-field cursor-pointer py-2 px-3" onchange="calculate()">
                                         <option value="no" data-i18n="no_lid">No Lid</option><option value="yes" data-i18n="with_lid">With Lid</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <div class="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border dark:border-slate-700 space-y-2 mt-2">
+                            <!-- Layers -->
+                            <div class="bg-gray-50 p-3 rounded-xl border space-y-3">
                                 <div class="grid grid-cols-2 gap-2 items-center">
-                                    <div><label class="block text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase" data-i18n="csm_layers">CSM Layers</label><input type="number" min="0" id="layers" value="0" class="input-field py-1.5 px-2 mt-1" oninput="validateInput(this)"></div>
+                                    <div><label class="block text-[10px] font-bold text-blue-600 uppercase" data-i18n="csm_layers">CSM Layers</label><input type="number" id="layers" value="0" class="input-field py-1.5 px-2 mt-1" oninput="validateInput(this)"></div>
                                     <div><select id="matType" class="input-field cursor-pointer py-1.5 px-2 mt-4 text-xs" onchange="calculate()"><option value="450">450 Type</option><option value="300">300 Type</option></select></div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-2 items-center">
-                                    <div><label class="block text-[10px] font-bold text-green-600 dark:text-green-400 uppercase" data-i18n="wr_layers">WR Layers</label><input type="number" min="0" id="wrLayers" value="0" class="input-field py-1.5 px-2 mt-1" oninput="validateInput(this)"></div>
+                                    <div><label class="block text-[10px] font-bold text-green-600 uppercase" data-i18n="wr_layers">WR Layers</label><input type="number" id="wrLayers" value="0" class="input-field py-1.5 px-2 mt-1" oninput="validateInput(this)"></div>
                                     <div><select id="wrType" class="input-field cursor-pointer py-1.5 px-2 mt-4 text-xs" onchange="calculate()"><option value="600">600 Type</option><option value="800">800 Type</option></select></div>
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-2 mt-2">
-                                <div><label class="block text-[10px] font-bold text-gray-500 uppercase mb-0.5" data-i18n="waste_factor">Waste (%)</label><input type="number" min="0" id="waste" value="0" class="input-field py-1.5 px-2" oninput="validateInput(this)"></div>
-                                <div><label class="block text-[10px] font-bold text-gray-500 uppercase mb-0.5" data-i18n="other_cost">Other Costs</label><input type="number" min="0" id="otherCost" value="0" class="input-field py-1.5 px-2" oninput="validateInput(this)" placeholder="Labor..."></div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div><label class="block text-[10px] font-bold text-gray-500 uppercase mb-1" data-i18n="waste_factor">Waste (%)</label><input type="number" id="waste" value="0" class="input-field py-2 px-3" oninput="validateInput(this)"></div>
+                                <div><label class="block text-[10px] font-bold text-gray-500 uppercase mb-1" data-i18n="other_cost">Other Costs</label><input type="number" id="otherCost" value="0" class="input-field py-2 px-3" oninput="validateInput(this)" placeholder="e.g. Labor"></div>
                             </div>
+
                         </div>
                     </div>
                 </div>
 
-                <!-- Output Side -->
-                <div class="lg:col-span-8 space-y-4" id="outputSection">
+                <div class="lg:col-span-8" id="pdfContentWrapper">
                     
-                    <!-- Action Bar -->
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 no-pdf bg-white dark:bg-slate-800 p-3 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                    <!-- Action Bar (Hidden on PDF) -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 hide-on-pdf">
                         <div class="flex-grow">
-                            <input type="text" id="quoteTitleInput" placeholder="Enter Project or Client Name..." class="w-full text-sm font-bold bg-transparent border-none outline-none px-2 text-gray-800 dark:text-white" data-i18n-placeholder="project_title_ph">
+                            <input type="text" id="quoteTitleInput" placeholder="Enter Project or Client Name..." class="w-full text-sm font-bold bg-white border border-gray-200 rounded-lg p-2.5 outline-none focus:border-blue-500 shadow-sm" oninput="updateLiveTitle()">
                         </div>
-                        <div class="flex space-x-2">
-                            <button onclick="saveCurrentQuote()" class="flex items-center space-x-1 bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-bold transition">
-                                <span>💾</span> <span data-i18n="btn_save_quote">Save</span>
+                        <div class="flex space-x-2 w-full sm:w-auto">
+                            <!-- Print Button -->
+                            <button onclick="triggerPrint()" class="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-gray-800 hover:bg-gray-900 text-white px-4 py-2.5 rounded-lg text-sm font-bold transition shadow-md">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                <span>Print</span>
                             </button>
-                            <button onclick="exportToPDF()" class="flex items-center space-x-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition shadow">
-                                <span>📄</span> <span>PDF Export</span>
+                            <!-- PDF Button -->
+                            <button onclick="exportToPDF()" class="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg text-sm font-bold transition shadow-md">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                <span>PDF</span>
                             </button>
                         </div>
                     </div>
 
-                    <div class="card p-5 h-full flex flex-col">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5 no-pdf">
-                            <div class="bg-gray-50 dark:bg-slate-700 border p-3 rounded-xl"><p class="text-[10px] text-gray-500 font-bold uppercase mb-1" data-i18n="raw_cost">Base Cost</p><p class="text-lg font-black truncate"><span id="grandTotal">0</span> <span class="text-[10px] font-normal">MMK</span></p></div>
-                            <div class="bg-blue-50 dark:bg-blue-900/20 border-blue-100 p-3 rounded-xl"><div class="flex justify-between items-center mb-1"><p class="text-[10px] text-blue-600 font-bold uppercase" data-i18n="wholesale">Wholesale</p><div class="flex items-center"><input type="number" min="0" id="marginWS" value="20" class="w-10 h-5 text-[10px] text-center border rounded font-bold" oninput="validateInput(this)"><span class="text-[10px] ml-0.5">%</span></div></div><p class="text-lg font-black text-blue-700 truncate"><span id="priceWS">0</span> <span class="text-[10px] font-normal">MMK</span></p></div>
-                            <div class="bg-green-50 dark:bg-green-900/20 border-green-100 p-3 rounded-xl"><div class="flex justify-between items-center mb-1"><p class="text-[10px] text-green-600 font-bold uppercase" data-i18n="retail">Retail</p><div class="flex items-center"><input type="number" min="0" id="marginRT" value="40" class="w-10 h-5 text-[10px] text-center border rounded font-bold" oninput="validateInput(this)"><span class="text-[10px] ml-0.5">%</span></div></div><p class="text-lg font-black text-green-700 truncate"><span id="priceRT">0</span> <span class="text-[10px] font-normal">MMK</span></p></div>
+                    <!-- PDF/Print Ready Container -->
+                    <div id="printArea" class="card p-6 sm:p-8 h-full flex flex-col relative bg-white">
+                        
+                        <!-- Official Header (Only visible in PDF/Print export) -->
+                        <div class="show-on-pdf mb-8 border-b-2 border-gray-800 pb-4">
+                            <h1 class="text-3xl font-black text-gray-900 uppercase tracking-tight text-center" id="pdfBizName">THE CREATOR DIGITAL</h1>
+                            <h2 class="text-lg font-bold text-gray-500 uppercase text-center mt-1">Official Quotation</h2>
+                            
+                            <div class="flex justify-between items-end mt-8">
+                                <div>
+                                    <p class="text-sm font-bold text-gray-500 uppercase mb-1">Project / Client:</p>
+                                    <p class="text-xl font-bold text-blue-800" id="pdfProjName">Untitled Project</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-bold text-gray-500 uppercase mb-1">Date:</p>
+                                    <p class="text-md font-bold text-gray-800" id="pdfDate"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Summary Cards (Hidden on PDF to save space) -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6 hide-on-pdf">
+                            <div class="bg-gray-50 border border-gray-200 p-4 rounded-xl">
+                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1" data-i18n="raw_cost">Base Raw Cost</p>
+                                <p class="text-xl font-black text-gray-800"><span id="grandTotal">0</span> <span class="text-xs">MMK</span></p>
+                            </div>
+                            <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl">
+                                <div class="flex justify-between items-center mb-1">
+                                    <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider" data-i18n="wholesale">Wholesale</p>
+                                    <div class="flex items-center bg-white px-1 rounded border border-blue-200">
+                                        <input type="number" id="marginWS" value="20" class="w-8 text-[10px] text-center font-bold outline-none" oninput="validateInput(this)"><span class="text-[10px] text-gray-500">%</span>
+                                    </div>
+                                </div>
+                                <p class="text-xl font-black text-blue-700"><span id="priceWS">0</span> <span class="text-xs">MMK</span></p>
+                            </div>
+                            <div class="bg-green-50 border border-green-100 p-4 rounded-xl">
+                                <div class="flex justify-between items-center mb-1">
+                                    <p class="text-[10px] font-bold text-green-600 uppercase tracking-wider" data-i18n="retail">Retail</p>
+                                    <div class="flex items-center bg-white px-1 rounded border border-green-200">
+                                        <input type="number" id="marginRT" value="40" class="w-8 text-[10px] text-center font-bold outline-none" oninput="validateInput(this)"><span class="text-[10px] text-gray-500">%</span>
+                                    </div>
+                                </div>
+                                <p class="text-xl font-black text-green-700"><span id="priceRT">0</span> <span class="text-xs">MMK</span></p>
+                            </div>
                         </div>
 
                         <!-- Bill of Materials Table -->
-                        <h3 class="text-[10px] font-bold uppercase tracking-widest border-b dark:border-slate-700 pb-2 mb-2" data-i18n="bom">Bill of Materials</h3>
-                        
-                        <!-- Added summary for PDF export visibility -->
-                        <div class="hidden pdf-header text-right mb-4">
-                            <span class="font-bold text-gray-600">Total Surface Area: </span><span id="pdfArea" class="font-bold text-blue-600">0</span>
+                        <div class="flex justify-between items-end border-b pb-2 mb-4">
+                            <h3 class="text-sm font-bold uppercase tracking-widest text-gray-800" data-i18n="bom">Bill of Materials</h3>
+                            <div class="text-right">
+                                <span class="text-[10px] font-bold text-gray-500 uppercase mr-1" data-i18n="surface_area">Total Area:</span>
+                                <span class="text-sm font-black text-blue-600 px-2 py-0.5 bg-blue-50 rounded" id="pdfArea">0</span>
+                            </div>
                         </div>
 
-                        <div class="overflow-x-auto flex-grow">
+                        <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="text-[10px] text-gray-500 uppercase border-b dark:border-slate-700">
-                                        <th class="py-1 font-bold" data-i18n="th_mat">Material</th>
-                                        <th class="py-1 font-bold text-right" data-i18n="th_qty">Qty</th>
-                                        <th class="py-1 font-bold text-right hidden sm:table-cell" data-i18n="th_price">Rate</th>
-                                        <th class="py-1 font-bold text-right" data-i18n="th_cost">Cost</th>
+                                    <tr class="text-[10px] text-gray-400 uppercase border-b border-gray-200 bg-gray-50">
+                                        <th class="py-2 px-2 font-bold" data-i18n="th_mat">Material Description</th>
+                                        <th class="py-2 px-2 font-bold text-right" data-i18n="th_qty">Quantity</th>
+                                        <th class="py-2 px-2 font-bold text-right hide-on-pdf" data-i18n="th_price">Rate (MMK)</th>
+                                        <th class="py-2 px-2 font-bold text-right" data-i18n="th_cost">Cost (MMK)</th>
                                     </tr>
                                 </thead>
-                                <tbody id="resultsTable" class="text-sm divide-y divide-gray-100 dark:divide-slate-700/50">
-                                    <!-- JS Rows -->
+                                <tbody id="resultsTable" class="text-sm divide-y divide-gray-100">
+                                    <!-- Rows generated by JS -->
                                 </tbody>
                             </table>
                         </div>
                         
-                        <div class="mt-4 flex justify-between items-end border-t pt-2 pdf-header">
-                            <div class="text-[10px] text-gray-400 italic">Quotation generated by TC Costing Software.</div>
-                            <div class="text-right">
-                                <p class="text-[10px] font-bold text-gray-500 uppercase">Grand Total (MMK)</p>
-                                <p class="text-xl font-black text-gray-900" id="pdfGrandTotal">0</p>
+                        <!-- PDF/Print Total Footer -->
+                        <div class="mt-auto pt-6 flex justify-between items-end show-on-pdf">
+                            <div class="text-[10px] text-gray-400 italic">Generated by TC Costing Software</div>
+                            <div class="text-right border-t-2 border-gray-800 pt-2 min-w-[200px]">
+                                <p class="text-xs font-bold text-gray-500 uppercase mb-1">Grand Total</p>
+                                <p class="text-2xl font-black text-gray-900"><span id="pdfGrandTotal">0</span> <span class="text-sm">MMK</span></p>
                             </div>
                         </div>
-
+                        
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ================= OTHER VIEWS (Saved, Prices, Rates, Settings) ================= -->
-        <!-- *These are the same as the previous version, kept hidden here to save reading space but functional in code* -->
-        <div id="savedView" class="hidden animate-in duration-300">
-            <div class="max-w-4xl mx-auto card p-6"><h2 class="text-xl font-bold mb-6 border-b pb-2">Saved Quotations</h2><div id="savedListContainer" class="space-y-3"></div></div>
-        </div>
-        
-        <div id="pricesView" class="hidden animate-in duration-300">
-            <!-- Price contents (Simplified view string for brevity, full JS logic remains) -->
-            <div class="max-w-4xl mx-auto card p-6"><h2 class="text-xl font-bold mb-6 border-b pb-2">Prices (Stored locally)</h2><p>Please edit prices in the main interface logic. (Truncated for clean HTML view)</p></div>
-        </div>
+        <!-- ================= PRICES VIEW ================= -->
+        <div id="pricesView" class="hidden animate-in fade-in duration-300">
+            <div class="max-w-4xl mx-auto card p-6 md:p-8">
+                <div class="flex justify-between items-center border-b pb-4 mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800" data-i18n="price_title">Unit Prices Database</h2>
+                        <p class="text-xs text-gray-500 mt-1" data-i18n="price_desc">Prices saved here will be stored locally.</p>
+                    </div>
+                    <button onclick="savePrices()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-bold shadow-md transition" data-i18n="btn_save">Save</button>
+                </div>
 
-        <div id="ratesView" class="hidden animate-in duration-300">
-            <div class="max-w-4xl mx-auto card p-6"><h2 class="text-xl font-bold mb-6 border-b pb-2">Rates & Ratios</h2><p>Customization available in Settings logic.</p></div>
-        </div>
-
-        <div id="settingsView" class="hidden animate-in duration-300">
-            <div class="max-w-4xl mx-auto card p-6"><h2 class="text-xl font-bold mb-6 border-b pb-2">Settings & Profile</h2>
-                <div class="space-y-4 max-w-sm">
-                    <div><label class="block text-xs text-gray-500 mb-1">Business Name (Shows on PDF)</label><input type="text" id="profBiz" class="input-field" placeholder="e.g. TC Fiberglass Co."></div>
-                    <button onclick="saveProfile()" class="bg-blue-600 text-white px-4 py-2 rounded font-bold">Save Profile</button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-bold text-gray-700 bg-gray-100 px-3 py-1.5 rounded uppercase tracking-wider" data-i18n="cat_basic">Core Materials</h3>
+                        <div><label class="block text-xs font-bold text-gray-500 mb-1">E-Glass Mat CSM (per Kg)</label><input type="number" id="priceMat" min="0" class="input-field py-2" oninput="validateInput(this)"></div>
+                        <div><label class="block text-xs font-bold text-gray-500 mb-1">Woven Roving WR (per Kg)</label><input type="number" id="priceWR" min="0" class="input-field py-2" oninput="validateInput(this)"></div>
+                        <div><label class="block text-xs font-bold text-gray-500 mb-1">Resin (per Kg)</label><input type="number" id="priceResin" min="0" class="input-field py-2" oninput="validateInput(this)"></div>
+                        <div><label class="block text-xs font-bold text-gray-500 mb-1">Hardener / MEKP (per Liter)</label><input type="number" id="priceHardener" min="0" class="input-field py-2" oninput="validateInput(this)"></div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-bold text-gray-700 bg-gray-100 px-3 py-1.5 rounded uppercase tracking-wider" data-i18n="cat_adv">Advanced Additives</h3>
+                        <div><label class="block text-xs font-bold text-gray-500 mb-1">Gelcoat (per Kg)</label><input type="number" id="priceGelcoat" min="0" class="input-field py-2" oninput="validateInput(this)"></div>
+                        <div><label class="block text-xs font-bold text-gray-500 mb-1">Color Pigment (per Kg)</label><input type="number" id="pricePigment" min="0" class="input-field py-2" oninput="validateInput(this)"></div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="block text-xs font-bold text-gray-500 mb-1">Cobalt (Liter)</label><input type="number" id="priceCobalt" min="0" class="input-field py-2" oninput="validateInput(this)"></div>
+                            <div><label class="block text-xs font-bold text-gray-500 mb-1">Styrene (Liter)</label><input type="number" id="priceStyrene" min="0" class="input-field py-2" oninput="validateInput(this)"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-green-600 text-white px-4 py-2 rounded shadow-xl transform transition-transform translate-y-20 opacity-0 text-sm font-bold z-50">Notification</div>
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-green-600 text-white px-4 py-3 rounded-lg shadow-2xl transform transition-transform translate-y-24 opacity-0 font-bold text-sm z-50 flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <span id="toastMsg">Success!</span>
+    </div>
 
     <script>
-        let currentMode = 'tank';
-        let currentLang = 'en';
-
-        // Translations Dictionary
+        // --- 1. Translations & Init ---
         const translations = {
             en: {
-                nav_calc: "Calculator", nav_saved: "Saved", nav_prices: "Prices", nav_rates: "Rates",
-                config_title: "Product Specs", shape_tank: "Rectangular", shape_cyl: "Cylinder", shape_sph: "Sphere", shape_custom: "Custom",
+                nav_calc: "Calculator", nav_prices: "⚙️ Prices",
+                config_title: "Product Specs", shape_type: "Shape Type",
+                shape_tank: "Rectangular Tank", shape_cyl: "Cylinder Tank", shape_sph: "Sphere Shape", shape_custom: "Custom / Statue",
                 length: "Length", width: "Width", height: "Height", diameter: "Diameter", surface_area: "Area",
-                ft: "Feet", in: "Inches", cm: "cm", m: "Meter", no_lid: "No Lid", with_lid: "With Lid",
+                input_unit: "Unit", ft: "Feet", in: "Inches", cm: "cm", m: "Meter",
+                lid: "Lid", no_lid: "No Lid", with_lid: "With Lid",
                 csm_layers: "CSM Layers", wr_layers: "WR Layers", waste_factor: "Waste (%)", other_cost: "Other Costs",
-                adv_mat: "Pro Mode", btn_save_quote: "Save", project_title_ph: "Project or Client Name...",
-                raw_cost: "Base Cost", wholesale: "Wholesale", retail: "Retail", bom: "Bill of Materials",
-                th_mat: "Material", th_qty: "Qty", th_price: "Rate", th_cost: "Cost"
+                raw_cost: "Base Raw Cost", wholesale: "Wholesale", retail: "Retail", bom: "Bill of Materials",
+                th_mat: "Material", th_qty: "Qty", th_price: "Rate", th_cost: "Cost",
+                price_title: "Prices Database", btn_save: "Save", price_desc: "Stored locally for calculations.",
+                cat_basic: "Core Materials", cat_adv: "Advanced Additives",
+                msg_neg: "⚠️ Warning - Negative numbers are not allowed. Auto-corrected.", msg_saved: "Prices Saved Successfully!"
             },
             my: {
-                nav_calc: "တွက်ချက်ရန်", nav_saved: "မှတ်တမ်းများ", nav_prices: "ဈေးနှုန်းများ", nav_rates: "စံနှုန်းများ",
-                config_title: "အချက်အလက်များ", shape_tank: "လေးထောင့်ကန်", shape_cyl: "စလင်ဒါ", shape_sph: "စက်လုံး", shape_custom: "ရုပ်ထု/အခြား",
+                nav_calc: "တွက်ချက်ရန်", nav_prices: "⚙️ ဈေးနှုန်းများ",
+                config_title: "အချက်အလက်များ", shape_type: "ပုံသဏ္ဍာန်",
+                shape_tank: "လေးထောင့်ကန်", shape_cyl: "စလင်ဒါ", shape_sph: "စက်လုံး", shape_custom: "ရုပ်ထု / အခြား",
                 length: "အလျား", width: "အနံ", height: "အမြင့်", diameter: "အချင်း", surface_area: "ဧရိယာ",
-                ft: "ပေ", in: "လက်မ", cm: "cm", m: "မီတာ", no_lid: "အဖုံးမပါ", with_lid: "အဖုံးပါ",
+                input_unit: "ယူနစ်", ft: "ပေ", in: "လက်မ", cm: "cm", m: "မီတာ",
+                lid: "အဖုံး", no_lid: "အဖုံးမပါ", with_lid: "အဖုံးပါ",
                 csm_layers: "CSM အထပ်", wr_layers: "WR အထပ်", waste_factor: "အလေအလွင့် (%)", other_cost: "အခြားစရိတ် (လက်ခ)",
-                adv_mat: "Pro စနစ်", btn_save_quote: "မှတ်တမ်းသိမ်းမည်", project_title_ph: "ပရောဂျက် / ဖောက်သည်အမည်...",
                 raw_cost: "အရင်းစရိတ်", wholesale: "လက်ကားဈေး", retail: "လက်လီဈေး", bom: "ကုန်ကြမ်း စာရင်း",
-                th_mat: "ပစ္စည်း", th_qty: "ပမာဏ", th_price: "ဈေးနှုန်း", th_cost: "ကျသင့်ငွေ"
+                th_mat: "ပစ္စည်း", th_qty: "ပမာဏ", th_price: "ဈေးနှုန်း", th_cost: "ကျသင့်ငွေ",
+                price_title: "ကုန်ကြမ်း ဈေးနှုန်းများ", btn_save: "သိမ်းဆည်းမည်", price_desc: "ကုန်ကျစရိတ်တွက်ချက်ရန် မှတ်သားထားပါသည်။",
+                cat_basic: "အခြေခံ ကုန်ကြမ်း", cat_adv: "အခြား ကုန်ကြမ်း",
+                msg_neg: "⚠️ သတိပြုရန် - အနှုတ်လက္ခဏာ ထည့်သွင်း၍မရပါ။ အလိုအလျောက် ပြင်ဆင်ပေးထားပါသည်။", msg_saved: "သိမ်းဆည်းပြီးပါပြီ!"
             }
         };
 
-        // UI Helpers
-        function showToast(msg, isError = false) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg; 
-            toast.className = `fixed bottom-5 right-5 px-4 py-2 rounded shadow-xl transform transition-transform z-50 text-sm font-bold text-white ${isError ? 'bg-red-600' : 'bg-green-600'}`;
-            toast.style.transform = 'translateY(0)'; toast.style.opacity = '1';
-            setTimeout(() => { toast.style.transform = 'translateY(20px)'; toast.style.opacity = '0'; }, 3000);
-        }
-
-        function switchMainView(view) {
-            ['calculator', 'saved', 'prices', 'rates', 'settings'].forEach(v => {
-                document.getElementById(v + 'View').classList.add('hidden');
-                document.getElementById(v + 'View').classList.remove('block');
-                if(document.getElementById('mainBtn' + v.charAt(0).toUpperCase() + v.slice(1))) {
-                    document.getElementById('mainBtn' + v.charAt(0).toUpperCase() + v.slice(1)).classList.remove('active');
-                }
-            });
-            document.getElementById(view + 'View').classList.remove('hidden');
-            document.getElementById(view + 'View').classList.add('block');
-            if(document.getElementById('mainBtn' + view.charAt(0).toUpperCase() + view.slice(1))) {
-                document.getElementById('mainBtn' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
-            }
-        }
+        let currentMode = 'tank';
+        let currentLang = 'my';
+        const defaultPrices = { mat: 5000, wr: 5500, resin: 6000, hardener: 8000, gelcoat: 9000, pigment: 15000, cobalt: 12000, styrene: 5000 };
 
         function setLanguage(lang) {
             currentLang = lang;
-            document.getElementById('langEn').classList.toggle('active', lang === 'en');
-            document.getElementById('langMy').classList.toggle('active', lang === 'my');
+            document.getElementById('langEn').className = `px-2 py-1 rounded font-bold ${lang==='en'?'text-blue-600 bg-white shadow-sm':'text-gray-400'}`;
+            document.getElementById('langMy').className = `px-2 py-1 rounded font-bold ${lang==='my'?'text-blue-600 bg-white shadow-sm':'text-gray-400'}`;
+            
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if(translations[lang][key]) el.innerHTML = translations[lang][key];
             });
-            document.getElementById('quoteTitleInput').placeholder = translations[lang]['project_title_ph'];
+            document.getElementById('warningText').innerText = translations[lang]['msg_neg'];
+            calculate();
+        }
+
+        function switchView(view) {
+            ['calculatorView', 'pricesView'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['btnCalc', 'btnPrices'].forEach(id => document.getElementById(id).classList.remove('active', 'text-white'));
+            
+            document.getElementById(view + 'View').classList.remove('hidden');
+            let btn = document.getElementById(view === 'calculator' ? 'btnCalc' : 'btnPrices');
+            btn.classList.add('active');
+            if(view === 'calculator') calculate();
+        }
+
+        // --- 2. Input Validation (Error Prevention) ---
+        function validateInput(el) {
+            // Prevent negative numbers but allow empty string while typing
+            if (el.value !== "" && parseFloat(el.value) < 0) {
+                el.value = Math.abs(el.value); 
+                showWarning();
+            }
+            calculate();
+        }
+
+        function showWarning() {
+            const warn = document.getElementById('errorWarning');
+            warn.classList.remove('hidden');
+            setTimeout(() => warn.classList.add('hidden'), 3500); // Hide after 3.5s
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.style.transform = 'translateY(0)'; toast.style.opacity = '1';
+            setTimeout(() => { toast.style.transform = 'translateY(100px)'; toast.style.opacity = '0'; }, 3000);
+        }
+
+        // --- 3. Settings & Prices ---
+        function loadPrices() {
+            const keys = Object.keys(defaultPrices);
+            keys.forEach(k => {
+                const saved = localStorage.getItem('p_' + k);
+                const el = document.getElementById('price' + k.charAt(0).toUpperCase() + k.slice(1));
+                if(el) el.value = saved !== null ? saved : defaultPrices[k];
+            });
+        }
+
+        function savePrices() {
+            const keys = Object.keys(defaultPrices);
+            keys.forEach(k => {
+                const el = document.getElementById('price' + k.charAt(0).toUpperCase() + k.slice(1));
+                if(el) localStorage.setItem('p_' + k, el.value || 0);
+            });
+            showToast(translations[currentLang]['msg_saved']);
+            calculate();
+        }
+
+        function getPrice(key) { 
+            return parseFloat(document.getElementById('price' + key).value) || 0; 
         }
 
         function setMode(mode) {
@@ -344,100 +430,130 @@
             calculate();
         }
 
-        // --- Fix #3: Strict Input Validation ---
-        function validateInput(el) {
-            if (el.value < 0) {
-                el.value = Math.abs(el.value); // Convert to positive immediately
-                const warningDiv = document.getElementById('errorWarning');
-                warningDiv.innerText = currentLang === 'en' ? "⚠️ Warning: Negative numbers are not allowed." : "⚠️ သတိပြုရန် - အနှုတ်လက္ခဏာ (Negative) ထည့်သွင်း၍မရပါ။";
-                warningDiv.classList.remove('hidden');
-                setTimeout(() => warningDiv.classList.add('hidden'), 3500);
-            }
-            // Prevent empty or NaN breaking calculations
-            if(el.value === "" || isNaN(el.value)) el.value = 0; 
-            calculate();
-        }
-
-        // Profile Management
-        function saveProfile() {
-            const biz = document.getElementById('profBiz').value || 'Your Business Name';
-            localStorage.setItem('tcProfile', JSON.stringify({biz: biz}));
-            showToast("Profile Saved!");
-        }
-        function loadProfile() {
-            const p = JSON.parse(localStorage.getItem('tcProfile'));
-            if(p && p.biz) document.getElementById('profBiz').value = p.biz;
-        }
-
-        // --- Core Calculation ---
+        // --- 4. Core Logic & Math ---
         function calculate() {
-            // Internal calc logic remains exact same, abbreviated here for space
-            const l = parseFloat(document.getElementById('length').value) || 0;
-            const w = parseFloat(document.getElementById('width').value) || 0;
-            const h = parseFloat(document.getElementById('height').value) || 0;
+            let area_m2 = 0; let displayArea = 0; let displayUnit = '';
+
+            // Handle empty inputs safely as 0 during calculation
             const layers = parseFloat(document.getElementById('layers').value) || 0;
+            const wrLayers = parseFloat(document.getElementById('wrLayers').value) || 0;
             const waste = parseFloat(document.getElementById('waste').value) || 0;
             const otherCost = parseFloat(document.getElementById('otherCost').value) || 0;
+            const hasLid = document.getElementById('hasLid').value === 'yes';
+            const unit = document.getElementById('unit').value;
+            const m = (unit === 'ft') ? 0.3048 : (unit === 'in') ? 0.0254 : (unit === 'cm') ? 0.01 : 1;
+
+            const csmFactor = (document.getElementById('matType').value === '450') ? 0.45 : 0.30;
+            const wrFactor = (document.getElementById('wrType').value === '600') ? 0.60 : 0.80;
+
+            // Geometry
+            if (currentMode === 'tank') {
+                const l = parseFloat(document.getElementById('length').value) || 0; const w = parseFloat(document.getElementById('width').value) || 0; const h = parseFloat(document.getElementById('height').value) || 0;
+                displayArea = hasLid ? (2*(l*w) + 2*(l*h) + 2*(w*h)) : ((l*w) + 2*(l*h) + 2*(w*h)); displayUnit = unit + '²';
+                const lm=l*m, wm=w*m, hm=h*m; area_m2 = hasLid ? (2*(lm*wm) + 2*(lm*hm) + 2*(wm*hm)) : ((lm*wm) + 2*(lm*hm) + 2*(wm*hm));
+            } else if (currentMode === 'cylinder') {
+                const d = parseFloat(document.getElementById('cylDia').value) || 0; const h = parseFloat(document.getElementById('cylHeight').value) || 0; const r = d/2;
+                displayArea = hasLid ? (2*Math.PI*r*h + 2*Math.PI*r*r) : (2*Math.PI*r*h + Math.PI*r*r); displayUnit = unit + '²';
+                const rm = r*m, hm = h*m; area_m2 = hasLid ? (2*Math.PI*rm*hm + 2*Math.PI*rm*rm) : (2*Math.PI*rm*hm + Math.PI*rm*rm);
+            } else if (currentMode === 'sphere') {
+                const d = parseFloat(document.getElementById('sphDia').value) || 0;
+                displayArea = 4*Math.PI*Math.pow((d/2), 2); displayUnit = unit + '²'; area_m2 = 4*Math.PI*Math.pow((d/2)*m, 2);
+            } else if (currentMode === 'statue') {
+                displayArea = parseFloat(document.getElementById('customArea').value) || 0; displayUnit = document.getElementById('customAreaUnit').value;
+                area_m2 = (displayUnit === 'ft2') ? (displayArea * 0.092903) : displayArea;
+            }
+
+            document.getElementById('pdfArea').innerText = displayArea.toFixed(2) + " " + displayUnit;
+
+            // Materials
+            const wasteMult = 1 + (waste / 100);
+            const csmKg = area_m2 * layers * csmFactor * wasteMult;
+            const wrKg = area_m2 * wrLayers * wrFactor * wasteMult;
+            const resinKg = (csmKg * 2.5) + (wrKg * 1.2);
+            const hardenerMl = resinKg * 15; 
+
+            let materials = [];
+            if(layers > 0) materials.push({ name: 'E-Glass CSM', qty: csmKg, unit: 'Kg', price: getPrice('Mat') });
+            if(wrLayers > 0) materials.push({ name: 'Woven Roving', qty: wrKg, unit: 'Kg', price: getPrice('WR') });
+            if(resinKg > 0) materials.push({ name: 'Resin Mix', qty: resinKg, unit: 'Kg', price: getPrice('Resin') });
+            if(hardenerMl > 0) materials.push({ name: 'Hardener (MEKP)', qty: hardenerMl, unit: 'ml', price: getPrice('Hardener'), isLiquid: true });
+
+            // Table & Totals
+            let tableHTML = ""; let grandTotal = 0;
+            materials.forEach(m => {
+                let cost = m.isLiquid ? (m.qty / 1000) * m.price : m.qty * m.price;
+                grandTotal += cost;
+                tableHTML += `
+                    <tr>
+                        <td class="py-2 px-2 font-medium text-gray-800">${m.name}</td>
+                        <td class="py-2 px-2 text-right font-bold text-blue-600">${m.qty.toFixed(2)} <span class="text-[10px] text-gray-400 font-normal">${m.unit}</span></td>
+                        <td class="py-2 px-2 text-right text-gray-500 hide-on-pdf">${m.price.toLocaleString()}</td>
+                        <td class="py-2 px-2 text-right font-bold text-gray-800">${Math.round(cost).toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+
+            if(otherCost > 0) {
+                grandTotal += otherCost;
+                tableHTML += `<tr class="border-t border-gray-100 bg-gray-50"><td class="py-2 px-2 font-bold text-gray-700" colspan="2">Other Costs (Labor, etc.)</td><td class="hide-on-pdf"></td><td class="py-2 px-2 text-right font-bold text-gray-800">${Math.round(otherCost).toLocaleString()}</td></tr>`;
+            }
+
+            document.getElementById('resultsTable').innerHTML = tableHTML;
+            document.getElementById('grandTotal').innerText = Math.round(grandTotal).toLocaleString();
+            document.getElementById('pdfGrandTotal').innerText = Math.round(grandTotal).toLocaleString();
+
+            // Pricing logic
             const marginWS = parseFloat(document.getElementById('marginWS').value) || 0;
             const marginRT = parseFloat(document.getElementById('marginRT').value) || 0;
-            
-            // Dummy logic for UI demonstration of the PDF and Validation working
-            let displayArea = (l*w) + (l*h)*2 + (w*h)*2;
-            let matKg = displayArea * layers * 0.45 * (1 + waste/100);
-            let resinKg = matKg * 2.5;
-            let gTotal = (matKg * 5000) + (resinKg * 6000) + otherCost; // Dummy prices
-
-            document.getElementById('pdfArea').innerText = displayArea + " " + document.getElementById('unit').value + "²";
-
-            let tHTML = `
-                <tr><td class="py-1">E-Glass Mat</td><td class="py-1 text-right font-bold">${matKg.toFixed(2)} Kg</td><td class="py-1 text-right hidden sm:table-cell">5,000</td><td class="py-1 text-right font-bold">${Math.round(matKg*5000).toLocaleString()}</td></tr>
-                <tr><td class="py-1">Resin</td><td class="py-1 text-right font-bold">${resinKg.toFixed(2)} Kg</td><td class="py-1 text-right hidden sm:table-cell">6,000</td><td class="py-1 text-right font-bold">${Math.round(resinKg*6000).toLocaleString()}</td></tr>
-            `;
-            if(otherCost > 0) tHTML += `<tr class="border-t"><td class="py-1 text-blue-600 font-bold">Other Costs</td><td colspan="2" class="py-1 hidden sm:table-cell"></td><td class="py-1 text-right font-bold text-blue-600">${Math.round(otherCost).toLocaleString()}</td></tr>`;
-
-            document.getElementById('resultsTable').innerHTML = tHTML;
-            document.getElementById('grandTotal').innerText = Math.round(gTotal).toLocaleString();
-            document.getElementById('pdfGrandTotal').innerText = Math.round(gTotal).toLocaleString();
-            
-            document.getElementById('priceWS').innerText = Math.round(gTotal * (1 + marginWS/100)).toLocaleString();
-            document.getElementById('priceRT').innerText = Math.round(gTotal * (1 + marginRT/100)).toLocaleString();
+            document.getElementById('priceWS').innerText = Math.round(grandTotal * (1 + marginWS/100)).toLocaleString();
+            document.getElementById('priceRT').innerText = Math.round(grandTotal * (1 + marginRT/100)).toLocaleString();
         }
 
-        // --- Fix #4: Professional PDF Export ---
+        // --- 5. Export & Print Functions ---
+        function updateLiveTitle() {
+            const title = document.getElementById('quoteTitleInput').value.trim() || 'Untitled Project';
+            document.getElementById('pdfProjName').innerText = title;
+        }
+
+        function triggerPrint() {
+            updateLiveTitle();
+            const date = new Date();
+            document.getElementById('pdfDate').innerText = date.toLocaleDateString('en-GB'); 
+            // Browser handles the `@media print` CSS automatically
+            window.print();
+        }
+
         function exportToPDF() {
-            // Prepare PDF Header Info
-            const biz = JSON.parse(localStorage.getItem('tcProfile'))?.biz || 'Your Business Name';
-            const projTitle = document.getElementById('quoteTitleInput').value.trim() || 'Untitled Project';
-            
-            document.getElementById('pdfBizName').innerText = biz;
-            document.getElementById('pdfProjectName').innerText = projTitle;
-            document.getElementById('pdfDate').innerText = new Date().toLocaleDateString();
+            updateLiveTitle();
+            const title = document.getElementById('quoteTitleInput').value.trim() || 'Untitled_Project';
+            const date = new Date();
+            document.getElementById('pdfDate').innerText = date.toLocaleDateString('en-GB');
 
-            const element = document.getElementById('calculatorView');
-            element.classList.add('pdf-export-mode'); // Apply CSS hides input, shows headers
+            const element = document.getElementById('printArea');
+            element.classList.add('pdf-mode'); // Apply strict PDF CSS class
 
-            const opt = {
+            // Use html2pdf to generate document
+            html2pdf().set({
                 margin:       [0.5, 0.5, 0.5, 0.5],
-                filename:     `Quotation_${projTitle.replace(/\s+/g, '_')}.pdf`,
+                filename:     `Quotation_${title.replace(/\s+/g, '_')}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
+                html2canvas:  { scale: 2, useCORS: true }, 
                 jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
-
-            // Generate PDF then remove the export class
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.classList.remove('pdf-export-mode');
-                showToast("PDF Exported Successfully!");
+            }).from(element).save().then(() => {
+                element.classList.remove('pdf-mode'); // Revert UI
+                showToast("PDF Downloaded Successfully!");
             }).catch(err => {
-                element.classList.remove('pdf-export-mode');
-                showToast("Error generating PDF.", true);
+                element.classList.remove('pdf-mode');
+                showToast("Error generating PDF!");
+                console.error(err);
             });
         }
 
+        // Init
         window.onload = () => {
-            loadProfile();
-            setLanguage('en');
-            calculate();
+            setLanguage('my');
+            loadPrices();
+            setMode('tank');
         };
     </script>
 </body>
